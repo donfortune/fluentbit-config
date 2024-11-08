@@ -54,12 +54,13 @@ function set_index(tag, timestamp, record)
         end
     end
     return 1, timestamp, record
-end
+end 
+```
 
 ### 2. `fluent-bit.conf`
 
 This is the main Fluent Bit configuration file. It configures Fluent Bit's service settings, input sources (log files), filters (Lua script, Kubernetes metadata), and output destinations (Elasticsearch).
-
+```
 [SERVICE]
     Daemon Off
     Flush {{ .Values.flush }}
@@ -105,8 +106,16 @@ This is the main Fluent Bit configuration file. It configures Fluent Bit's servi
     Type _doc
     Host elasticsearch-master
     Port 9200
-    HTTP_User elastic
-    HTTP_Passwd cbTQj1qxRIPNF5uc
+    # Elasticsearch username for authentication
+    # This is the user that Fluent Bit will use to connect to Elasticsearch.
+    # The username should have appropriate permissions to push logs into Elasticsearch.
+    HTTP_User elastic  # <-- Here you reference the Elasticsearch username.
+
+    # Elasticsearch password for authentication
+    # This is the password corresponding to the username defined above.
+    # It ensures that only authorized users can send logs to Elasticsearch.
+    HTTP_Passwd cbTQj1qxRIPNF5uc  # <-- Here you reference the Elasticsearch password.
+
     tls On
     tls.verify Off
     Logstash_Format On
@@ -120,12 +129,74 @@ This is the main Fluent Bit configuration file. It configures Fluent Bit's servi
     Type _doc
     Host elasticsearch-master
     Port 9200
-    HTTP_User elastic
-    HTTP_Passwd cbTQj1qxRIPNF5uc
+    # Elasticsearch username for authentication
+    HTTP_User elastic  # <-- Again, reference the username here for the system logs.
+
+    # Elasticsearch password for authentication
+    HTTP_Passwd cbTQj1qxRIPNF5uc  # <-- And reference the password here.
+
     tls On
     tls.verify Off
     Logstash_Format On
     Logstash_Prefix node
     Retry_Limit False
     Suppress_Type_Name On
+
+```
+    
+## Usage
+
+### Prerequisites:
+- Fluent Bit must be installed in your Kubernetes cluster, and you'll need `Helm` installed locally.
+- Elasticsearch should be set up and accessible from Fluent Bit.
+
+### Steps:
+
+1. **Clone this repository:**
+    ```bash
+    git clone https://github.com/donfortune/fluentbbit-kubernetes-logs.git
+    cd fluent-bit-kubernetes-logs
+    ```
+
+2. **Deploy Fluent Bit using Helm:**
+
+    - **Add the Fluent Bit Helm repository**:
+        ```bash
+        helm repo add fluent https://fluent.github.io/helm-charts
+        helm repo update
+        ```
+
+    - **Create a ConfigMap** with the configuration files:
+        ```bash
+        kubectl create configmap fluent-bit-config --from-file=fluent-bit.conf --from-file=setIndex.lua -n kube-system
+        ```
+
+    - **Install Fluent Bit** using Helm with the custom configuration:
+        ```bash
+        helm install fluent-bit fluent/fluent-bit \
+            --namespace kube-system \
+            --set config.configMap=fluent-bit-config
+        ```
+
+3. **Monitor Elasticsearch:** Once Fluent Bit is deployed and logs are being pushed, monitor Elasticsearch for the newly created indices based on the configured prefixes (`logstash-*` for Kubernetes logs and `node-*` for system logs).
+
+4. **Access Fluent Bit Metrics:** Fluent Bit exposes metrics through an HTTP server. You can access them by visiting the HTTP server port (configured in `fluent-bit.conf`).
+
+## Environment Variables
+
+You may want to customize certain variables in the configuration file. Here are some options:
+
+- **`flush`**: Time interval for flushing logs.
+- **`logLevel`**: The logging level for Fluent Bit (e.g., info, debug).
+- **`metricsPort`**: The port for the HTTP server to expose metrics.
+
+These variables can be set dynamically, depending on your deployment platform.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+This `README.md` provides clear instructions for setting up and using the Fluent Bit configuration in a Kubernetes environment with Helm. It includes details about how the Lua script and various Fluent Bit settings work. You can paste this directly into your repository to help others understand how to use your setup.
 
