@@ -154,8 +154,8 @@ This is the main Fluent Bit configuration file. It configures Fluent Bit's servi
 
 1. **Clone this repository:**
     ```bash
-    git clone https://github.com/donfortune/fluentbbit-kubernetes-logs.git
-    cd fluent-bit-kubernetes-logs
+    git clone https://github.com/donfortune/fluentbit-config.git
+    cd fluentbit-config
     ```
 
 2. **Deploy Fluent Bit using Helm:**
@@ -175,7 +175,11 @@ This is the main Fluent Bit configuration file. It configures Fluent Bit's servi
         ```bash
         helm install fluent-bit fluent/fluent-bit \
             --namespace kube-system \
+            -f fluent-bit-values.yaml \
             --set config.configMap=fluent-bit-config
+            
+  
+
         ```
 
 3. **Monitor Elasticsearch:** Once Fluent Bit is deployed and logs are being pushed, monitor Elasticsearch for the newly created indices based on the configured prefixes (`logstash-*` for Kubernetes logs and `node-*` for system logs).
