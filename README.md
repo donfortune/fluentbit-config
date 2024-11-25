@@ -12,7 +12,7 @@ This repository contains the configuration files for Fluent Bit, which is used t
 - [Environment Variables](#environment-variables)
 - [License](#license)
 
-## Overview
+## Overview:
 
 Fluent Bit is a lightweight log shipper and processor used to collect, process, and forward logs from various sources. In this setup:
 
