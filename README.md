@@ -1,6 +1,6 @@
 # Fluent Bit Kubernetes Log Processor Configuration
 
-This repository contains the configuration files for Fluent Bit, which is used to collect, process, and forward logs from a Kubernetes cluster to Elasticsearch. The configuration uses a custom Lua script to dynamically set indices based on the Kubernetes namespace and container name.
+This repository contains the configuration files for Fluent Bit, which is used to collect, process, and forward logs from a Kubernetes cluster to Elasticsearch. The configuration uses a custom script to dynamically set indices based on the Kubernetes namespace and container name.
 
 ## Table of Contents
 
